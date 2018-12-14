@@ -1,0 +1,7 @@
+= Requirements
+
+== API
+
+=== REQ-API-0001
+
+`GET \{jobs}` return joblist named _{jobs}_.
