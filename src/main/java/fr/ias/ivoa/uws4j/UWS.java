@@ -2,6 +2,6 @@ package fr.ias.ivoa.uws4j;
 
 public interface UWS {
 
-	String VERSION = "0.0";
+	String VERSION = "1.1";
 
 }
