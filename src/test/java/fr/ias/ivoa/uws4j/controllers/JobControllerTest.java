@@ -2,22 +2,15 @@ package fr.ias.ivoa.uws4j.controllers;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.nullValue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.Optional;
-import java.util.UUID;
 
-import org.assertj.core.api.Assertions;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
@@ -67,7 +60,6 @@ public class JobControllerTest {
 	public void testGetJobListNotFound() throws Exception {
 		
 		//__given__
-		JobList jobList = new JobList("foo");
 		when(jobService.getJobListByName(ArgumentMatchers.eq("foo"))).thenReturn(Optional.empty());
 		
 		//__when_then__

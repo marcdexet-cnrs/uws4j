@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import fr.ias.ivoa.uws4j.UWS;
+
 public class JobList {
 
 	private String name;
@@ -27,6 +29,9 @@ public class JobList {
 		return new ArrayList<>(jobById.values());
 	}
 
+	public String getVersion() {
+		return UWS.VERSION;
+	}
 
 	public void addJob(Job job) {
 		if ( job.getJobId() == null ) {
@@ -34,6 +39,5 @@ public class JobList {
 			job.setJobId(jobId);
 		}
 		jobById.put(job.getJobId(), job);
-		
 	}
 }

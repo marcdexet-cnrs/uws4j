@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import fr.ias.ivoa.uws4j.domain.JobList;
 import fr.ias.ivoa.uws4j.exceptions.NotFoundException;
-import fr.ias.ivoa.uws4j.rest.JobListRepresentation;
 import fr.ias.ivoa.uws4j.services.JobService;
 
 @RestController
@@ -26,9 +25,9 @@ public class JobController {
 		 * @throws NotFoundException 
 		 */
 		@GetMapping(value="/{jobs}",  produces = "application/json")
-		public JobListRepresentation getJobList(@PathVariable("jobs") String jobListName) throws NotFoundException {
-			return JobListRepresentation.from( 
-					jobService.getJobListByName(jobListName).orElseThrow(() -> new NotFoundException(JobList.class, jobListName))
-				);
+		public JobList getJobList(@PathVariable("jobs") String jobListName) throws NotFoundException {
+					return jobService
+					.getJobListByName(jobListName)
+					.orElseThrow(() -> new NotFoundException(JobList.class, jobListName));
 		}
 }
