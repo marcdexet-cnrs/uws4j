@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import fr.ias.ivoa.uws4j.UWS;
 
@@ -12,7 +14,7 @@ public class JobList {
 
 	private String name;
 	
-	private Map<String, Job> jobById = new HashMap<>();
+	private Map<String, Job> jobById = new ConcurrentHashMap<>();
 	
 	
 	public JobList(String name) {
@@ -39,5 +41,10 @@ public class JobList {
 			job.setJobId(jobId);
 		}
 		jobById.put(job.getJobId(), job);
+	}
+
+
+	public Optional<Job> findJob(String jobId) {
+		return Optional.ofNullable(jobById.get(jobId));
 	}
 }

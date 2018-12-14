@@ -12,12 +12,14 @@ import fr.ias.ivoa.uws4j.exceptions.NotFoundException;
 @Component
 public interface JobService {
 
-	public Optional<JobList> findJobListByName(String jobListName);
+	public Optional<JobList> findJobList(String name);
 	
-	public JobList getJobListByName(String jobListName) throws NotFoundException;
+	public JobList getJobList(String name) throws NotFoundException;
 
 	public void addJobToJobList(Job job, JobList jobList);
 
 	public Job createJobFromParameters(Map<String, String> params);
+		
+	public Job getJob(String jobId, JobList jobList) throws NotFoundException;
 
 }
