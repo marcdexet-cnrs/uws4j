@@ -13,7 +13,7 @@ import java.util.Map;
 public class Job {
 	
 	private String jobId;
-	private String groupId;
+	private String runId;
 	private String jobList;
 	private String phase;
 	private LocalDateTime creationTime;
@@ -25,12 +25,14 @@ public class Job {
 	private List<Result> results;
 	private List<PhaseTransition> transitions;
 	private String owner;
+	private Integer executionDuration;
+	private LocalDateTime quote;
 	
-	public String getGroupId() {
-		return groupId;
+	public String getRunId() {
+		return runId;
 	}
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
+	public void setRunId(String groupId) {
+		this.runId = groupId;
 	}
 	public String getJobId() {
 		return jobId;
@@ -103,7 +105,21 @@ public class Job {
 		this.owner = owner;
 	}
 	
-	public String getOwner() {
+	public String getOwner() {	
 		return owner;
+	}
+	public void setExecutionDuration(Integer executionDuration) {
+		this.executionDuration = executionDuration;
+	}
+	
+	public Integer getExecutionDuration() {
+		return executionDuration;
+	}
+	public LocalDateTime getQuote() {
+		return quote;
+	}
+	
+	public void setQuote(LocalDateTime quote) {
+		this.quote = quote;
 	}
 }

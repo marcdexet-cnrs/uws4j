@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.header;
@@ -22,6 +23,8 @@ import java.util.Optional;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatchers;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.omg.CosNaming.NamingContextPackage.NotFound;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -89,8 +92,8 @@ public class JobListControllerTest {
 		//__GIVEN__
 		Job job = new Job();
 		job.setJobId("any-job-id");
-		when(jobService.createJobFromParameters(any())).thenReturn(job);
-				
+		when(jobService.createAndRegisterJobForJoblist(any())).thenReturn(job);
+		
 		//__WHEN__THEN_
 		mockMvc.perform(post("/uws/foo?a=1&b=foo"))
 			.andExpect(status().is(303))

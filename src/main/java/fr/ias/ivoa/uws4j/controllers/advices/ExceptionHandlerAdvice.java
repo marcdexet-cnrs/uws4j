@@ -15,8 +15,15 @@ public class ExceptionHandlerAdvice {
 	@ExceptionHandler(value= {NotFoundException.class})
 	public ResponseEntity<PublicFailureRepresentation> onNotFound(NotFoundException e) {
 		PublicFailureRepresentation pfr = new PublicFailureRepresentation(e.getMessage(), e, showCase());
-		return new ResponseEntity<PublicFailureRepresentation>(pfr, HttpStatus.NOT_FOUND);
+		return new ResponseEntity<>(pfr, HttpStatus.NOT_FOUND);
 	}
+	
+	@ExceptionHandler(value= {IllegalArgumentException.class})
+	public ResponseEntity<PublicFailureRepresentation> onIllegalArgument(IllegalArgumentException e) {
+		PublicFailureRepresentation pfr = new PublicFailureRepresentation(e.getMessage(), e, showCase());
+		return new ResponseEntity<>(pfr, HttpStatus.BAD_REQUEST);
+	}
+	
 
 	private boolean showCase() {
 		return true;
