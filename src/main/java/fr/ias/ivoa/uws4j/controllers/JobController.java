@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ivoa.uws.ErrorSummary;
 import org.ivoa.uws.Parameters;
+import org.ivoa.uws.Results;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,7 +62,8 @@ public class JobController {
 	
 	
 	@GetMapping(value="/{jobs}/{jobId}/parameters",produces= {MediaType.APPLICATION_JSON_VALUE})
-	public Map<String, String> getJobParameters(@PathVariable("jobs") String jobListName, 
+	public Map<String, String> getJobParameters(
+			@PathVariable("jobs") String jobListName, 
 			@PathVariable("jobId") String jobId) throws NotFoundException {
 		JobList jobList = jobService.getJobList(jobListName);
 		Job job = jobService.getJob(jobId, jobList);
@@ -69,7 +71,8 @@ public class JobController {
 	}
 
 	@GetMapping(value="/{jobs}/{jobId}/parameters",produces= {MediaType.APPLICATION_XML_VALUE})
-	public Parameters getJobParametersAsXml(@PathVariable("jobs") String jobListName, 
+	public Parameters getJobParametersAsXml(
+			@PathVariable("jobs") String jobListName, 
 			@PathVariable("jobId") String jobId) throws NotFoundException {
 		Map<String, String> parameters = getJobParameters(jobListName, jobId);
 		return converterService.translateToXML(org.ivoa.uws.Parameters.class, parameters);
@@ -78,7 +81,8 @@ public class JobController {
 	
 
 	@GetMapping(value="/{jobs}/{jobId}/error",produces= {MediaType.APPLICATION_JSON_VALUE})
-	public Error getJobError(@PathVariable("jobs") String jobListName, 
+	public Error getJobError(
+			@PathVariable("jobs") String jobListName, 
 			@PathVariable("jobId") String jobId) throws NotFoundException {
 		JobList jobList = jobService.getJobList(jobListName);
 		Job job = jobService.getJob(jobId, jobList);
@@ -86,18 +90,26 @@ public class JobController {
 	}
 	
 	@GetMapping(value="/{jobs}/{jobId}/error",produces= {MediaType.APPLICATION_XML_VALUE})
-	public ErrorSummary getJobErrorAsXml(@PathVariable("jobs") String jobListName, 
+	public ErrorSummary getJobErrorAsXml(
+			@PathVariable("jobs") String jobListName, 
 			@PathVariable("jobId") String jobId) throws NotFoundException {
 		return converterService.translateToXML(org.ivoa.uws.ErrorSummary.class, getJobError(jobListName, jobId));
 	}	
 
-	@GetMapping("/{jobs}/{jobId}/results")
-	public List<Result> getJobResults(@PathVariable("jobs") String jobListName, 
+	@GetMapping(value="/{jobs}/{jobId}/results",produces= {MediaType.APPLICATION_JSON_VALUE})
+	public List<Result> getJobResults(
+			@PathVariable("jobs") String jobListName, 
 			@PathVariable("jobId") String jobId) throws NotFoundException {
 		JobList jobList = jobService.getJobList(jobListName);
 		Job job = jobService.getJob(jobId, jobList);
 		return job.getResults();
 	}
 
+	@GetMapping(value="/{jobs}/{jobId}/results",produces= {MediaType.APPLICATION_XML_VALUE})
+	public Results getJobResultsAsXML(
+			@PathVariable("jobs") String jobListName, 
+			@PathVariable("jobId") String jobId) throws NotFoundException {
+		return converterService.translateToXML(org.ivoa.uws.Results.class, getJobResults(jobListName, jobId));
+	}
 
 }

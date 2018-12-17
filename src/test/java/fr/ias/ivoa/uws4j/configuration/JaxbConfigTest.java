@@ -31,7 +31,7 @@ class JaxbConfigTest {
 		assertThat(result.toString())
 			.isEqualTo(
 					"<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-					+ "<parameters xmlns=\"http://www.ivoa.net/xml/UWS/v1.0\" xmlns:ns2=\"http://www.w3.org/1999/xlink\">"
+								+ "<parameters xmlns=\"http://www.ivoa.net/xml/UWS/v1.0\" xmlns:ns2=\"http://www.w3.org/1999/xlink\">"
 					+ "<parameter id=\"foo\">bar</parameter>"
 					+ "</parameters>");
 	}

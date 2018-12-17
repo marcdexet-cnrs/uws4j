@@ -13,27 +13,29 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.util.EnumMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
 
 import org.ivoa.uws.Parameter;
 import org.ivoa.uws.Parameters;
+import org.ivoa.uws.ResultReference;
+import org.ivoa.uws.Results;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.xml.transform.StringResult;
 
 import fr.ias.ivoa.uws4j.configuration.JaxbConfig;
 import fr.ias.ivoa.uws4j.domain.ExecutionPhase;
 import fr.ias.ivoa.uws4j.domain.Job;
 import fr.ias.ivoa.uws4j.domain.JobList;
+import fr.ias.ivoa.uws4j.domain.Result;
 import fr.ias.ivoa.uws4j.domain.ScalarJobAttribute;
 import fr.ias.ivoa.uws4j.services.ConverterService;
 import fr.ias.ivoa.uws4j.services.JobService;
@@ -149,9 +151,72 @@ public class JobControllerTest {
 			
 			assertThat(result.getResponse().getContentAsString())
 				.isEqualTo("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
-						+ "<parameters xmlns=\"http://www.ivoa.net/xml/UWS/v1.0\">"
+						+ "<parameters xmlns=\"http://www.ivoa.net/xml/UWS/v1.0\" "
+						+ "xmlns:ns2=\"http://www.w3.org/1999/xlink\">"
 						+ "<parameter id=\"foo\">bar</parameter>"
 						+ "</parameters>");
+		}
+	}
+	
+	
+	@Test
+	public void getResult() throws Exception {
+		// GIVEN
+		JobList jobList = new JobList("xmatch");
+		
+		when(jobService.getJobList("xmatch")).thenReturn(jobList);
+		Job job = new Job();
+		
+		
+
+		// WHEN_THEN
+		{
+			Result r =  new Result();
+			r.setHref("http://from/nowhere");
+			r.setId("foo");
+			r.setMimeType("mimetype");
+			r.setType("png");
+			r.setSize(10L);
+			job.setResults(new LinkedList<>());
+			job.getResults().add(r);
+			
+			when(jobService.getJob(eq("123456"), eq(jobList))).thenReturn(job);
+			MvcResult result = mvc.perform(get("/uws/xmatch/123456/results").accept(APPLICATION_JSON_VALUE))
+					.andDo(print())
+					.andExpect(status().isOk())
+					.andReturn();
+			
+			assertThat(result.getResponse().getContentAsString())
+				.isEqualTo("[{\"id\":\"foo\","
+						+ "\"href\":\"http://from/nowhere\","
+						+ "\"type\":\"png\","
+						+ "\"mimeType\":\"mimetype\","
+						+ "\"redirection\":false,"
+						+ "\"size\":10}]");
+		}
+		// WHEN_THEN
+		{
+			Results results = new Results();
+			
+			ResultReference r = new ResultReference();
+			r.setHref("http://from/nowhere");
+			r.setId("foo");
+			r.setMimeType("mimetype");
+			r.setType("png");
+			r.setSize(10L);
+			results.getResult().add(r);
+			when(converterService.translateToXML(eq(Results.class), any())).thenReturn(results);
+			MvcResult result = mvc.perform(get("/uws/xmatch/123456/results").accept(APPLICATION_XML_VALUE))
+					.andDo(print())
+					.andExpect(status().isOk())
+					.andReturn();
+			
+			assertThat(result.getResponse().getContentAsString())
+				.isEqualTo("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+						+ "<results xmlns=\"http://www.ivoa.net/xml/UWS/v1.0\" "
+						+ "xmlns:ns2=\"http://www.w3.org/1999/xlink\">"
+						+ "<result id=\"foo\" size=\"10\" mime-type=\"mimetype\" ns2:type=\"png\" ns2:href=\"http://from/nowhere\"/>"
+						+ "</results>");
 		}
 	}
 

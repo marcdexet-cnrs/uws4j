@@ -10,6 +10,7 @@ public class Result {
 	private String type;
 	private String mimeType;
 	private boolean redirection;
+	private Long size;
 	
 	public String getId() {
 		return id;
@@ -42,6 +43,12 @@ public class Result {
 	
 	public void setMimeType(String mimeType) {
 		this.mimeType = mimeType;
+	}
+	public Long getSize() {
+		return this.size;
+	}	
+	public void setSize(Long size) {
+		this.size = size;
 	}
 
 }
