@@ -77,8 +77,6 @@ public class JobController {
 		Map<String, String> parameters = getJobParameters(jobListName, jobId);
 		return converterService.translateToXML(org.ivoa.uws.Parameters.class, parameters);
 	}
-	
-	
 
 	@GetMapping(value="/{jobs}/{jobId}/error",produces= {MediaType.APPLICATION_JSON_VALUE})
 	public Error getJobError(
@@ -93,8 +91,10 @@ public class JobController {
 	public ErrorSummary getJobErrorAsXml(
 			@PathVariable("jobs") String jobListName, 
 			@PathVariable("jobId") String jobId) throws NotFoundException {
-		return converterService.translateToXML(org.ivoa.uws.ErrorSummary.class, getJobError(jobListName, jobId));
-	}	
+		ErrorSummary es = converterService.translateToXML(org.ivoa.uws.ErrorSummary.class, getJobError(jobListName, jobId));
+		return es;
+	}
+
 
 	@GetMapping(value="/{jobs}/{jobId}/results",produces= {MediaType.APPLICATION_JSON_VALUE})
 	public List<Result> getJobResults(

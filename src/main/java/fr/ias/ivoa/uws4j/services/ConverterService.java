@@ -4,12 +4,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.ivoa.uws.ErrorSummary;
+import org.ivoa.uws.ErrorType;
 import org.ivoa.uws.Parameter;
 import org.ivoa.uws.Parameters;
 import org.ivoa.uws.ResultReference;
 import org.ivoa.uws.Results;
 import org.springframework.stereotype.Service;
 
+import fr.ias.ivoa.uws4j.domain.Error;
 import fr.ias.ivoa.uws4j.domain.Result;
 
 @Service
@@ -47,6 +50,13 @@ public class ConverterService {
 				return (T) xmlResults;
 			}
 			
+		} else if (ErrorSummary.class.isAssignableFrom(classT)) {
+			ErrorSummary es = new ErrorSummary();
+			Error e = (Error) value;
+			es.setHasDetail(e.hasDetail());
+			es.setMessage(e.getMessage());
+			es.setType(ErrorType.valueOf(e.getType()));
+			return (T) es;
 		}
 			
 		return null;

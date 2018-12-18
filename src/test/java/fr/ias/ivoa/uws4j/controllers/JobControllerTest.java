@@ -17,10 +17,15 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Optional;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
+import org.ivoa.uws.ErrorSummary;
+import org.ivoa.uws.ErrorType;
 import org.ivoa.uws.Parameter;
 import org.ivoa.uws.Parameters;
 import org.ivoa.uws.ResultReference;
 import org.ivoa.uws.Results;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +37,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
 import fr.ias.ivoa.uws4j.configuration.JaxbConfig;
+import fr.ias.ivoa.uws4j.domain.Error;
 import fr.ias.ivoa.uws4j.domain.ExecutionPhase;
 import fr.ias.ivoa.uws4j.domain.Job;
 import fr.ias.ivoa.uws4j.domain.JobList;
@@ -177,10 +183,9 @@ public class JobControllerTest {
 	public void getResult() throws Exception {
 		// GIVEN
 		JobList jobList = new JobList("xmatch");
-		
 		when(jobService.getJobList("xmatch")).thenReturn(jobList);
 		Job job = new Job();
-		
+		when(jobService.getJob(eq("123456"), eq(jobList))).thenReturn(job);
 		
 
 		// WHEN_THEN
@@ -193,7 +198,7 @@ public class JobControllerTest {
 		job.setResults(new LinkedList<>());
 		job.getResults().add(r);
 		
-		when(jobService.getJob(eq("123456"), eq(jobList))).thenReturn(job);
+
 		MvcResult result = mvc.perform(get("/uws/xmatch/123456/results").accept(APPLICATION_JSON_VALUE))
 				.andDo(print())
 				.andExpect(status().isOk())
@@ -208,12 +213,16 @@ public class JobControllerTest {
 					+ "\"size\":10}]");
 	}
 
-	
+	@Test
 	public void getResultAsXml() throws Exception {
 
 		// GIVEN
-		Results results = new Results();
+		JobList jobList = new JobList("xmatch");
+		when(jobService.getJobList("xmatch")).thenReturn(jobList);
+		Job job = new Job();
+		when(jobService.getJob(eq("123456"), eq(jobList))).thenReturn(job);
 		
+		Results results = new Results();
 		ResultReference r = new ResultReference();
 		r.setHref("http://from/nowhere");
 		r.setId("foo");
@@ -236,6 +245,77 @@ public class JobControllerTest {
 					+ "xmlns:ns2=\"http://www.w3.org/1999/xlink\">"
 					+ "<result id=\"foo\" size=\"10\" mime-type=\"mimetype\" ns2:type=\"png\" ns2:href=\"http://from/nowhere\"/>"
 					+ "</results>");
-	}			
+	}	
+	
+	@Test
+	public void getError() throws Exception {
+		// GIVEN
+		JobList jobList = new JobList("xmatch");
+		
+		when(jobService.getJobList("xmatch")).thenReturn(jobList);
+		Job job = new Job();
+		
+		
+
+		// WHEN_THEN
+		Error e = new Error();
+		e.setDetail(true);
+		e.setDetailsHref("http://some.where");
+		e.setMessage("error message");
+		e.setType("fatal");
+		job.setError(e);
+		
+		when(jobService.getJob(eq("123456"), eq(jobList))).thenReturn(job);
+		MvcResult result = mvc.perform(get("/uws/xmatch/123456/error").accept(APPLICATION_JSON_VALUE))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andReturn();
+		
+		assertThat(result.getResponse().getContentAsString())
+			.isEqualTo("{\"type\":\"fatal\",\"detailsHref\":\"http://some.where\",\"message\":\"error message\"}");
+	}
+
+	
+	@Test
+	/**
+	 * There's a problem with XSD and jaxb2marshaller.
+	 * ErrorSummary has no XmlRootElement.
+	 * see org.springframework.http.converter.xml.Jaxb2RootElementHttpMessageConverter.canWrite(Class<?>, MediaType)
+	 * If test fails, add a XmlRootElement annotation to class ErrorSummary 
+	 * <pre>
+	 * @XmlRootElement(name="errorSummary")
+	 *	public class ErrorSummary {
+	 * </pre>
+	 * @throws Exception
+	 */
+	public void getErrorAsXml() throws Exception {
+
+		// GIVEN
+		JobList jobList = new JobList("xmatch");
+		when(jobService.getJobList("xmatch")).thenReturn(jobList);
+		Job job = new Job();
+		job.setError(new Error());
+		when(jobService.getJob(eq("123456"), eq(jobList))).thenReturn(job);
+		
+		ErrorSummary e = new ErrorSummary();
+		e.setHasDetail(true);
+		e.setMessage("error message");
+		e.setType(ErrorType.FATAL);
+		
+		when(converterService.translateToXML(any(), any())).thenReturn(e);
+
+		// WHEN_THEN
+
+		MvcResult result = mvc.perform(get("/uws/xmatch/123456/error").accept(APPLICATION_XML_VALUE))
+				.andDo(print())
+				.andExpect(status().isOk())
+				.andReturn();
+		
+		assertThat(result.getResponse().getContentAsString())
+			.isEqualTo("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+					+ "<errorSummary xmlns=\"http://www.ivoa.net/xml/UWS/v1.0\" xmlns:ns2=\"http://www.w3.org/1999/xlink\" type=\"fatal\" hasDetail=\"true\">"
+					+ "<message>error message</message>"
+					+ "</errorSummary>");
+	}	
 
 }
